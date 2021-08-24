@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
 import Section from './Components/Section';
@@ -6,64 +6,48 @@ import AddForm from './Components/AddForm';
 import UserPhoneBook from './Components/UserPhonebook';
 import Filter from './Components/Filter';
 
-class App extends Component {
-    state = {
-        contacts: [],
-        filter: '',
+function App() {
+    const [name, setName] = useState('');
+    const [number, setNumber] = useState('');
+
+    const onInputChange = value => {
+        if (value.target.name === 'name') setName(value.target.value);
+        if (value.target.name === 'number') setNumber(value.target.value);
     };
 
-    componentDidMount() {
-        const contacts = localStorage.getItem('contacts');
-        const parsedContacts = JSON.parse(contacts);
-        if (parsedContacts) this.setState({ contacts: parsedContacts });
-    }
+    const [contacts, setContact] = useState([]);
 
-    componentDidUpdate(prevProps, prevState) {
-        if (this.state.contacts !== prevProps.contacts) {
-            localStorage.setItem(
-                'contacts',
-                JSON.stringify(this.state.contacts),
-            );
+    const onSubmit = () => {
+        if (checkEnteredName(name)) {
+            return alert(`${name} is already in contact`);
         }
-    }
-
-    onSubmit = data => {
-        if (this.checkEnteredName(data)) {
-            return alert(`${data.name} is already in contact`);
-        }
-
         const contact = {
             id: uuidv4(),
-            ...data,
+            name,
+            number,
         };
-        this.setState(prevState => ({
-            contacts: [contact, ...prevState.contacts],
-        }));
+        setContact(prevState => [...prevState, { ...contact }]);
+        resetForm();
     };
 
-    onDeleteContact = contactId => {
-        this.setState(prevState => ({
-            contacts: prevState.contacts.filter(
-                contact => contact.id !== contactId,
-            ),
-        }));
+    const onDeleteContact = contactId => {
+        setContact(contacts.filter(contact => contact.id !== contactId));
     };
 
-    checkEnteredName = data => {
-        const { name } = data;
+    const checkEnteredName = () => {
         const normalizedName = name.toLowerCase();
-        const { contacts } = this.state;
         return contacts.some(
             ({ name }) => name.toLowerCase() === normalizedName,
         );
     };
 
-    handlerFilterChange = data => {
-        this.setState({ filter: data.currentTarget.value });
+    const [filter, setFilter] = useState('');
+
+    const handlerFilterChange = data => {
+        setFilter(data.currentTarget.value);
     };
 
-    handlerUserSearch = () => {
-        const { filter, contacts } = this.state;
+    const handlerUserSearch = () => {
         const normalizedFilter = filter.toLowerCase();
 
         return contacts.filter(contact =>
@@ -71,34 +55,28 @@ class App extends Component {
         );
     };
 
-    render() {
-        const {
-            onSubmit,
-            handlerFilterChange,
-            handlerUserSearch,
-            onDeleteContact,
-        } = this;
+    const resetForm = () => {
+        setName('');
+        setNumber('');
+    };
 
-        return (
-            <Section>
-                <AddForm onSubmit={onSubmit} />
-                {this.state.contacts.length > 0 ? (
+    return (
+        <Section>
+            <AddForm onSubmit={onSubmit} onInputChange={onInputChange} />
+
+            {contacts.length > 0 ? (
+                <>
                     <Filter onChange={handlerFilterChange} />
-                ) : (
-                    ''
-                )}
-
-                {this.state.contacts.length > 0 ? (
                     <UserPhoneBook
                         contact={handlerUserSearch()}
                         onDelete={onDeleteContact}
                     />
-                ) : (
-                    <h2>There is no contacts</h2>
-                )}
-            </Section>
-        );
-    }
+                </>
+            ) : (
+                <h2>There is no contacts</h2>
+            )}
+        </Section>
+    );
 }
 
 export default App;
