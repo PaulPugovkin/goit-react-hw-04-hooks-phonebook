@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useState } from 'react';
 import styles from './AddForm.module.css';
 
@@ -54,5 +55,12 @@ function AddForm(props) {
         </form>
     );
 }
+
+AddForm.propTypes = {
+    name: PropTypes.string,
+    number: PropTypes.string,
+    onInputChange: PropTypes.func,
+    onUserSubmit: PropTypes.func,
+};
 
 export default AddForm;

@@ -1,3 +1,5 @@
+import PropTypes from 'prop-types';
+
 import NewContact from '../NewContact';
 import styles from './UserPhoneBook.module.css';
 
@@ -18,6 +20,14 @@ const UserPhoneBook = ({ contact, onDelete }) => {
             </ul>
         </div>
     );
+};
+
+UserPhoneBook.propTypes = {
+    contact: PropTypes.arrayOf(PropTypes.object),
+    id: PropTypes.string,
+    name: PropTypes.string,
+    number: PropTypes.string,
+    onDelete: PropTypes.func,
 };
 
 export default UserPhoneBook;
