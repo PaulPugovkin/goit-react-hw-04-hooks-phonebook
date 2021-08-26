@@ -17,6 +17,16 @@ function App() {
 
     const [contacts, setContact] = useState([]);
 
+    useEffect(() => {
+        const localContacts = localStorage.getItem('contacts');
+        setContact(JSON.parse(localContacts));
+    }, []);
+
+    useEffect(() => {
+        const localContacts = JSON.stringify(contacts);
+        localStorage.setItem('contacts', localContacts);
+    }, [contacts]);
+
     const onSubmit = () => {
         if (checkEnteredName(name)) {
             return alert(`${name} is already in contact`);
